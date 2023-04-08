@@ -1,0 +1,13 @@
+name: Markers
+version: '${version}'
+main: org.nowfow.marx.Markers
+api-version: 1.19
+depend: [ dynmap ]
+authors: [ nowfow ]
+description: Упрощение создания меток на DynMap
+commands:
+  marx:
+    description: Управление метками DynMap
+    permissions:
+      marx.*:
+        [Доступ ко всем командам плагина]
