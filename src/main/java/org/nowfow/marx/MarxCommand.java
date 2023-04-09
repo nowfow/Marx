@@ -1,4 +1,4 @@
-package org.nowfow.marx.Commands;
+package org.nowfow.marx;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -7,13 +7,15 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dynmap.DynmapCommonAPI;
-import org.dynmap.markers.*;
+import org.dynmap.markers.Marker;
+import org.dynmap.markers.MarkerAPI;
+import org.dynmap.markers.MarkerIcon;
+import org.dynmap.markers.MarkerSet;
 import org.jetbrains.annotations.NotNull;
-import org.nowfow.marx.Markers;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.Collection;
 import java.util.Random;
+
 
 public class MarxCommand  implements CommandExecutor {
     private final Markers plugin;
@@ -32,50 +34,44 @@ public class MarxCommand  implements CommandExecutor {
         if (args[0].equalsIgnoreCase("add")) {
             Player player = (Player) sender;
             Location location = player.getLocation();
-            MarkerSet markerSet = dynmapCommonAPI.getMarkerAPI().getMarkerSet("45431"); // название набора меток
-            if (markerSet == null) {
-                markerSet = dynmapCommonAPI.getMarkerAPI().createMarkerSet("45431", "Marx", null, false); // название, метка, иконка, скрытость
-            }
+            MarkerSet markerSet = dynmapCommonAPI.getMarkerAPI().getMarkerSet("markers"); // название набора меток
             int randomId = new Random().nextInt(9999); // генерируем случайный ID метки от 0 до 9999
             String markerId = String.format("%04d", randomId); // форматируем ID метки, чтобы он содержал четыре цифры (например, если случайное число равно 12, то ID будет равен "0012")
             String markerLabel = args[1];
+            String MarkerDesc = args[3];
 
             String world = location.getWorld().getName();
             double x = location.getX();
             double y = location.getY();
             double z = location.getZ();
 
-            MarkerIcon icon = null;
-            if (args.length > 2) {
+            MarkerIcon icon;
                 icon = dynmapCommonAPI.getMarkerAPI().getMarkerIcon(args[2]);
                 if (icon == null) {
                     player.sendMessage(ChatColor.RED + "Иконка " + args[2] + " не найдена!");
                     return true;
-                }
+
             } else {
                 icon = dynmapCommonAPI.getMarkerAPI().getMarkerIcon("redflag"); // иконка метки по умолчанию
             }
-            Marker marker = markerSet.createMarker(markerId, markerLabel, world, x, y, z, icon, false); // ID метки, название метки, название набора меток, иконка метки, скрытость
-            markerSet.setMarkerSetLabel("45431"); // название набора меток
+            markerSet.setMarkerSetLabel("Markers");
+            Marker marker = markerSet.createMarker(markerId, markerLabel, true, world, x, y, z, icon, true);
             player.sendMessage(ChatColor.GREEN + "Метка " + markerLabel + " создана с ID " + markerId + "!");
+            marker.setDescription(MarkerDesc);
         }
-        if (args[0].equalsIgnoreCase("list")) {
-            for (MarkerSet ms : markerAPI.getMarkerSets()) {
-                List<Marker> sortedMarkers = ms.getMarkers().stream().sorted(Comparator.comparing(GenericMarker::getMarkerID)).toList();
-                for (Marker m : sortedMarkers) {
-                    sender.sendMessage(ChatColor.GOLD + m.getMarkerID() + ": " + ChatColor.WHITE + m.getLabel() + ChatColor.AQUA + " [" + m.getWorld() + ": " + m.getX() + "," + m.getY() + "," + m.getZ() + "]");
-                }
-                //есть проблемы с показом меток по какой то причине после перезапуска в лист не попадают новые метки.
-            }
-        }
-        if (args[0].equalsIgnoreCase("remove")) {
+
+
+        else if (args[0].equalsIgnoreCase("remove")) {
             String markerId = args[1];
-            MarkerSet markerSet = dynmapCommonAPI.getMarkerAPI().getMarkerSet("marx"); // название набора меток
+            MarkerSet markerSet = dynmapCommonAPI.getMarkerAPI().getMarkerSet("markers"); // название набора меток
             if (markerSet != null) {
                 Marker marker = markerSet.findMarker(markerId);
                 if (marker != null) {
                     marker.deleteMarker();
                     sender.sendMessage(ChatColor.GREEN + "Метка с ID " + markerId + " удалена!");
+
+
+
                 } else {
                     sender.sendMessage(ChatColor.RED + "Метка с ID " + markerId + " не найдена!");
                 }
@@ -83,7 +79,26 @@ public class MarxCommand  implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "Набор меток не найден!");
             }
         }
-    return true;
-    }
+        else if (args[0].equalsIgnoreCase("list")) {
+            MarkerSet markerSet = dynmapCommonAPI.getMarkerAPI().getMarkerSet("markers"); // Название набора меток
+            if (markerSet != null) {
+                sender.sendMessage(ChatColor.YELLOW + "Список меток:");
+                Collection<Marker> markers = markerSet.getMarkers(); // Получаем список всех меток в наборе меток
+                for (Marker marker : markers) {
+                    String markerId = marker.getMarkerID();
+                    String markerLabel = marker.getLabel();
+                    String world = marker.getWorld();
+                    double x = marker.getX();
+                    double y = marker.getY();
+                    double z = marker.getZ();
+                    sender.sendMessage(ChatColor.YELLOW + "- ID: " + markerId + ", Название: " + markerLabel + ", Координаты: X=" + x + ", Y=" + y + ", Z=" + z);
+                }
+            } else {
+                sender.sendMessage(ChatColor.RED + "Набор меток не найден!");
 
+
+            }
+        }
+        return true;
+    }
 }
