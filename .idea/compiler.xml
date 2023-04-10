@@ -9,8 +9,5 @@
         <module name="Marx" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="Marx" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

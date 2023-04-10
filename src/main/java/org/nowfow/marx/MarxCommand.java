@@ -38,7 +38,10 @@ public class MarxCommand  implements CommandExecutor {
             int randomId = new Random().nextInt(9999); // генерируем случайный ID метки от 0 до 9999
             String markerId = String.format("%04d", randomId); // форматируем ID метки, чтобы он содержал четыре цифры (например, если случайное число равно 12, то ID будет равен "0012")
             String markerLabel = args[1];
+
             String MarkerDesc = args[3];
+
+            String markerOwner = player.getDisplayName();
 
             String world = location.getWorld().getName();
             double x = location.getX();
@@ -57,7 +60,7 @@ public class MarxCommand  implements CommandExecutor {
             markerSet.setMarkerSetLabel("Markers");
             Marker marker = markerSet.createMarker(markerId, markerLabel, true, world, x, y, z, icon, true);
             player.sendMessage(ChatColor.GREEN + "Метка " + markerLabel + " создана с ID " + markerId + "!");
-            marker.setDescription(MarkerDesc);
+            marker.setDescription(MarkerDesc + " Создатель метки: " + markerOwner);
         }
 
 
